@@ -1,0 +1,1154 @@
+\documentclass[12pt,a4paper]{article}
+
+% =========================================================
+% PACKAGES
+% =========================================================
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage{array}
+
+% =========================================================
+% HYPERLINK SETTINGS
+% =========================================================
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% =========================================================
+% PAGE STYLE
+% =========================================================
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\lhead{ICS1512}
+\rhead{Machine Learning Algorithms Laboratory}
+\cfoot{\thepage}
+
+% =========================================================
+% CODE LISTING SETTINGS
+% =========================================================
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4
+}
+
+% =========================================================
+% DOCUMENT
+% =========================================================
+
+\begin{document}
+
+% =========================================================
+% TITLE / COVER INFORMATION
+% =========================================================
+
+\begin{center}
+
+{\Large \textbf{MACHINE LEARNING ALGORITHMS LABORATORY}}\\[0.3cm]
+
+{\large \textbf{Experiment 4}}\\[0.3cm]
+
+{\Large \textbf{Binary Classification using Linear and Kernel-Based Models}}
+
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Experiment No.} & 4 \\ \hline
+
+\textbf{Experiment Title} &
+Binary Classification using Linear and Kernel-Based Models \\ \hline
+
+\textbf{Student Name} & Harshitaa B\\ \hline
+
+\textbf{Register Number} & 3122247001021 \\ \hline
+
+\textbf{Faculty} & Dr. Poreddy Ajay Kumar Reddy \\ \hline
+
+\textbf{Submission Date} & 16th August 2026 \\ \hline
+
+\end{tabular}
+
+\vspace{0.5cm}
+
+\begin{center}
+\textbf{Subject Code: ICS1512}\\
+\textbf{Machine Learning Algorithms Laboratory}
+\end{center}
+
+\newpage
+
+% =========================================================
+% 1. OBJECTIVE
+% =========================================================
+
+\section{Objective}
+
+The objectives of this experiment are:
+
+\begin{enumerate}
+    \item To implement binary classification using Logistic Regression
+    and Support Vector Machine (SVM).
+    
+    \item To classify email samples into spam and ham classes using the
+    Spambase dataset.
+    
+    \item To study the effect of regularization and other
+    hyperparameters on Logistic Regression performance.
+    
+    \item To compare different SVM kernels including linear,
+    polynomial, RBF and sigmoid kernels.
+    
+    \item To perform hyperparameter tuning using cross-validation.
+    
+    \item To evaluate the models using accuracy, precision, recall and
+    F1-score.
+    
+    \item To compare Logistic Regression and SVM using five-fold
+    cross-validation.
+    
+    \item To analyse the effect of model selection and hyperparameter
+    tuning on classification performance.
+\end{enumerate}
+
+% =========================================================
+% 2. PROBLEM STATEMENT
+% =========================================================
+
+\section{Problem Statement}
+
+The objective of this experiment is to develop binary classification
+models for identifying emails as either spam or ham. Logistic Regression
+is used as a linear probabilistic classifier, while Support Vector
+Machine is used as a margin-based classifier.
+
+The performance of the models is evaluated before and after
+hyperparameter tuning. Different SVM kernels are also compared to
+understand their effect on classification performance.
+
+The final models are evaluated using standard classification metrics
+and five-fold cross-validation.
+
+% =========================================================
+% 3. DATASET DESCRIPTION
+% =========================================================
+
+\section{Dataset Description}
+
+The Spambase dataset contains numerical features extracted from email
+content along with a binary target indicating whether an email is spam
+or non-spam (ham).
+
+\begin{longtable}{|p{5cm}|p{9cm}|}
+\hline
+\textbf{Property} & \textbf{Description} \\ \hline
+
+Dataset Name &
+Spambase Dataset \\ \hline
+
+Dataset Type &
+Binary Classification \\ \hline
+
+Application &
+Spam and Ham Email Classification \\ \hline
+
+Target Variable &
+Spam / Ham \\ \hline
+
+Feature Type &
+Numerical features extracted from email content \\ \hline
+
+Number of Classes &
+2 \\ \hline
+
+Dataset Source &
+Spambase dataset \\ \hline
+
+\end{longtable}
+
+\textbf{Note:} The exact sample count, feature count and missing-value
+count should be entered from the dataset inspection performed in the
+notebook.
+
+% =========================================================
+% 4. EXPLORATORY DATA ANALYSIS
+% =========================================================
+
+\section{Exploratory Data Analysis}
+
+Exploratory Data Analysis was performed before training the
+classification models. The main purpose of EDA was to understand the
+structure of the dataset and identify potential preprocessing
+requirements.
+
+The following aspects were considered:
+
+\begin{itemize}
+    \item Dataset dimensions
+    \item Data types
+    \item Missing values
+    \item Statistical summary
+    \item Class distribution
+    \item Feature distributions
+    \item Correlation between features
+\end{itemize}
+
+\subsection{Dataset Overview}
+
+The dataset was inspected to determine the number of samples, features,
+data types and target classes.
+
+\textbf{Observation:}
+
+The dataset consists of numerical email-related features and a binary
+target variable representing spam and ham emails. Understanding the
+dataset structure is important before applying classification
+algorithms.
+
+% ---------------------------------------------------------
+% CLASS DISTRIBUTION
+% ---------------------------------------------------------
+
+\subsection{Class Distribution}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{class_distribution.png}
+\caption{Distribution of Spam and Ham Emails}
+\label{fig:class_distribution}
+\end{figure}
+
+\textbf{Observation:}
+
+The class distribution graph shows the number of spam and ham samples
+in the dataset. The distribution helps determine whether the dataset
+contains a significant class imbalance. This information is useful
+when interpreting accuracy along with precision, recall and F1-score.
+
+% ---------------------------------------------------------
+% CORRELATION MATRIX
+% ---------------------------------------------------------
+
+\subsection{Correlation Matrix}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.80\linewidth]{correlation_matrix.png}
+\caption{Correlation Matrix of Dataset Features}
+\label{fig:correlation}
+\end{figure}
+
+\textbf{Observation:}
+
+The correlation matrix represents the pairwise relationship between
+the numerical features. Strong positive or negative correlations can
+indicate that some features contain related information. The matrix
+also provides an overview of the relationships among the input
+variables before model training.
+
+% =========================================================
+% 5. DATA PREPROCESSING
+% =========================================================
+
+\section{Data Preprocessing}
+
+The following preprocessing steps were performed:
+
+\begin{enumerate}
+    \item Missing values were checked in the dataset.
+    \item The target variable was separated from the input features.
+    \item The data was divided into training and testing sets.
+    \item Numerical features were standardized before model training.
+    \item The same preprocessing procedure was applied consistently
+    during model evaluation.
+\end{enumerate}
+
+Feature standardization is particularly important for Logistic
+Regression and SVM because both models are affected by the scale of
+the input features.
+
+% =========================================================
+% 6. MACHINE LEARNING ALGORITHMS
+% =========================================================
+
+\section{Machine Learning Algorithms}
+
+% ---------------------------------------------------------
+% LOGISTIC REGRESSION
+% ---------------------------------------------------------
+
+\subsection{Logistic Regression}
+
+Logistic Regression is a probabilistic classification algorithm used
+for binary classification.
+
+The probability of the positive class is calculated using the sigmoid
+function:
+
+\[
+P(y=1|x) =
+\frac{1}{1+e^{-(w^Tx+b)}}
+\]
+
+where $w$ represents the model weights, $x$ represents the input
+features and $b$ is the bias term.
+
+A threshold is applied to convert the predicted probability into a
+class label.
+
+The model minimizes logistic or cross-entropy loss during training.
+
+\subsubsection{Regularization}
+
+Regularization is used to control model complexity and reduce
+overfitting.
+
+Two commonly used regularization techniques are:
+
+\begin{itemize}
+    \item \textbf{L1 Regularization:} Encourages some coefficients to
+    become zero and can therefore perform feature selection.
+    
+    \item \textbf{L2 Regularization:} Penalizes large coefficients and
+    generally provides smoother model weights.
+\end{itemize}
+
+The parameter $C$ controls the inverse strength of regularization.
+
+A smaller value of $C$ results in stronger regularization, whereas a
+larger value allows the model to fit the training data more closely.
+
+% ---------------------------------------------------------
+% SVM
+% ---------------------------------------------------------
+
+\subsection{Support Vector Machine}
+
+Support Vector Machine is a margin-based classification algorithm.
+It attempts to find an optimal decision boundary that separates the
+classes while maximizing the margin between them.
+
+Only a subset of training samples, known as support vectors,
+directly determines the decision boundary.
+
+The general SVM optimization objective can be represented as:
+
+\[
+\min_{w,b,\xi}
+\frac{1}{2}\|w\|^2
++
+C\sum_{i=1}^{n}\xi_i
+\]
+
+subject to:
+
+\[
+y_i(w^Tx_i+b)\geq1-\xi_i
+\]
+
+where $C$ controls the trade-off between maximizing the margin and
+allowing classification errors.
+
+% ---------------------------------------------------------
+% SVM KERNELS
+% ---------------------------------------------------------
+
+\subsection{SVM Kernels}
+
+Different kernels were evaluated in the experiment.
+
+\begin{itemize}
+    \item \textbf{Linear Kernel:} Suitable when the classes can be
+    separated approximately using a linear decision boundary.
+    
+    \item \textbf{Polynomial Kernel:} Captures polynomial relationships
+    between features.
+    
+    \item \textbf{RBF Kernel:} Can model complex non-linear decision
+    boundaries.
+    
+    \item \textbf{Sigmoid Kernel:} Produces a decision function with
+    behaviour similar to a sigmoid activation.
+\end{itemize}
+
+% =========================================================
+% 7. EXPERIMENTAL SETUP
+% =========================================================
+
+\section{Experimental Setup}
+
+\begin{longtable}{|p{6cm}|p{8cm}|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\ \hline
+
+Programming Language & Python \\ \hline
+
+Machine Learning Library & Scikit-learn \\ \hline
+
+Dataset & Spambase \\ \hline
+
+Classification Type & Binary Classification \\ \hline
+
+Validation Method & Five-Fold Cross-Validation \\ \hline
+
+Models & Logistic Regression and SVM \\ \hline
+
+\end{longtable}
+
+% =========================================================
+% 8. HYPERPARAMETER SELECTION
+% =========================================================
+
+\section{Hyperparameter Selection}
+
+Hyperparameter tuning was performed to identify suitable configurations
+for Logistic Regression and SVM.
+
+% ---------------------------------------------------------
+% LOGISTIC REGRESSION SEARCH
+% ---------------------------------------------------------
+
+\subsection{Logistic Regression Hyperparameter Tuning}
+
+The parameters considered for Logistic Regression included:
+
+\begin{itemize}
+    \item Regularization: L1 and L2
+    \item $C$: 0.01, 0.1, 1, 10 and 100
+    \item Solver: liblinear and saga
+\end{itemize}
+
+The best configuration obtained was:
+
+\begin{longtable}{|p{6cm}|p{8cm}|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\ \hline
+
+$C$ & 1 \\ \hline
+
+Penalty & L2 \\ \hline
+
+Solver & saga \\ \hline
+
+Best CV Accuracy & 0.9242 \\ \hline
+
+Tuning Time & 289.1025 seconds \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The best Logistic Regression configuration was obtained with
+$C=1$, L2 regularization and the saga solver. The best cross-validation
+accuracy during tuning was 0.9242. The tuning process required
+approximately 289.10 seconds. The selected L2 regularization provides
+a balance between model complexity and generalization.
+
+% ---------------------------------------------------------
+% SVM SEARCH
+% ---------------------------------------------------------
+
+\subsection{SVM Hyperparameter Tuning}
+
+The SVM model was evaluated using linear, polynomial, RBF and sigmoid
+kernels.
+
+The best configuration obtained through hyperparameter tuning was:
+
+\begin{longtable}{|p{6cm}|p{8cm}|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\ \hline
+
+$C$ & 10 \\ \hline
+
+Gamma & scale \\ \hline
+
+Kernel & RBF \\ \hline
+
+Best CV Accuracy & 0.9332 \\ \hline
+
+Tuning Time & 120.9516 seconds \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The best SVM configuration used the RBF kernel with $C=10$ and
+gamma set to scale. This configuration achieved a cross-validation
+accuracy of 0.9332. The tuning process required approximately
+120.95 seconds. The RBF kernel provided better validation performance
+during tuning than the other tested configurations.
+
+% =========================================================
+% 9. BASELINE LOGISTIC REGRESSION
+% =========================================================
+
+\section{Baseline Logistic Regression Results}
+
+The baseline Logistic Regression model was evaluated on the test
+dataset before hyperparameter tuning.
+
+\begin{longtable}{|p{7cm}|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+
+Accuracy & 0.9294 \\ \hline
+
+Precision & 0.9209 \\ \hline
+
+Recall & 0.8981 \\ \hline
+
+F1 Score & 0.9093 \\ \hline
+
+Training Time & 0.1428 seconds \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The baseline Logistic Regression model achieved an accuracy of
+92.94\%. Precision was 92.09\%, while recall was 89.81\%.
+The resulting F1-score was 90.93\%. The model required approximately
+0.143 seconds for training, showing that Logistic Regression was
+relatively efficient for this dataset.
+
+% =========================================================
+% 10. TUNED LOGISTIC REGRESSION
+% =========================================================
+
+\section{Tuned Logistic Regression Results}
+
+After hyperparameter tuning, Logistic Regression achieved the
+following results:
+
+\begin{longtable}{|p{7cm}|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+
+Accuracy & 0.9305 \\ \hline
+
+Precision & 0.9211 \\ \hline
+
+Recall & 0.9008 \\ \hline
+
+F1 Score & 0.9109 \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+Hyperparameter tuning produced a small improvement in Logistic
+Regression performance. Accuracy increased from 92.94\% to 93.05\%.
+Precision increased from 92.09\% to 92.11\%, while recall increased
+from 89.81\% to 90.08\%. The F1-score also increased from 90.93\%
+to 91.09\%. Therefore, the tuned model provided slightly better
+overall performance than the baseline model.
+
+% =========================================================
+% 11. SVM KERNEL COMPARISON
+% =========================================================
+
+\section{SVM Kernel Comparison}
+
+The performance of SVM was evaluated using four different kernels.
+
+\begin{longtable}{|p{3cm}|c|c|c|c|c|}
+\hline
+\textbf{Kernel} &
+\textbf{Accuracy} &
+\textbf{Precision} &
+\textbf{Recall} &
+\textbf{F1 Score} &
+\textbf{Training Time (s)}
+\\ \hline
+
+Linear &
+0.9294 &
+0.9209 &
+0.8981 &
+0.9093 &
+0.5773
+\\ \hline
+
+Polynomial &
+0.7796 &
+0.9598 &
+0.4601 &
+0.6220 &
+0.5557
+\\ \hline
+
+RBF &
+0.9273 &
+0.9277 &
+0.8843 &
+0.9055 &
+0.2895
+\\ \hline
+
+Sigmoid &
+0.8849 &
+0.8599 &
+0.8457 &
+0.8528 &
+0.3540
+\\ \hline
+
+\end{longtable}
+
+\subsection{SVM Prediction Time}
+
+\begin{longtable}{|p{4cm}|c|}
+\hline
+\textbf{Kernel} & \textbf{Prediction Time (s)} \\ \hline
+
+Linear & 0.0253 \\ \hline
+
+Polynomial & 0.0763 \\ \hline
+
+RBF & 0.0864 \\ \hline
+
+Sigmoid & 0.0573 \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The linear kernel achieved an accuracy of 92.94\% and an F1-score of
+90.93\%. The RBF kernel produced a similar accuracy of 92.73\% and
+an F1-score of 90.55\%, while requiring less training time than the
+linear kernel.
+
+The polynomial kernel obtained a relatively high precision of 95.98\%,
+but its recall was only 46.01\%, resulting in a much lower F1-score of
+62.20\%. This indicates that the polynomial kernel missed a significant
+number of positive samples.
+
+The sigmoid kernel achieved an accuracy of 88.49\% and an F1-score of
+85.28\%. Overall, the linear kernel provided the strongest performance
+among the untuned SVM kernels based on accuracy and F1-score.
+
+% =========================================================
+% 12. BEST SVM
+% =========================================================
+
+\section{Tuned SVM Results}
+
+The best SVM configuration obtained through hyperparameter tuning was:
+
+\[
+C=10,\qquad
+\gamma=\text{scale},\qquad
+\text{kernel}=\text{RBF}
+\]
+
+The final test performance was:
+
+\begin{longtable}{|p{7cm}|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+
+Accuracy & 0.9207 \\ \hline
+
+Precision & 0.9143 \\ \hline
+
+Recall & 0.8815 \\ \hline
+
+F1 Score & 0.8976 \\ \hline
+
+Prediction Time & 0.0700 seconds \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The tuned SVM model used an RBF kernel with $C=10$ and gamma set to
+scale. It achieved a test accuracy of 92.07\%, precision of 91.43\%,
+recall of 88.15\% and an F1-score of 89.76\%. Although its cross-
+validation accuracy was high, the final test accuracy was lower than
+that of the tuned Logistic Regression model.
+
+% =========================================================
+% 13. LOGISTIC REGRESSION VS SVM
+% =========================================================
+
+\section{Logistic Regression versus SVM}
+
+The final tuned models were compared using the test-set metrics.
+
+\begin{longtable}{|p{5cm}|c|c|}
+\hline
+\textbf{Metric} &
+\textbf{Logistic Regression} &
+\textbf{SVM}
+\\ \hline
+
+Accuracy & 0.9305 & 0.9207 \\ \hline
+
+Precision & 0.9211 & 0.9143 \\ \hline
+
+Recall & 0.9008 & 0.8815 \\ \hline
+
+F1 Score & 0.9109 & 0.8976 \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The tuned Logistic Regression model achieved higher test accuracy,
+precision, recall and F1-score than the tuned SVM model. Logistic
+Regression obtained an accuracy of 93.05\%, whereas SVM obtained
+92.07\%.
+
+The difference indicates that Logistic Regression generalized slightly
+better on the test set for this experiment. However, SVM achieved a
+higher cross-validation score during tuning, indicating that its
+validation performance was strong even though its final test
+performance was lower.
+
+% =========================================================
+% 14. FIVE-FOLD CROSS VALIDATION
+% =========================================================
+
+\section{Five-Fold Cross-Validation}
+
+Five-fold cross-validation was performed to compare the consistency
+of Logistic Regression and SVM.
+
+In each fold, four parts of the dataset were used for training and the
+remaining part was used for validation.
+
+\begin{longtable}{|c|c|c|}
+\hline
+\textbf{Fold} &
+\textbf{Logistic Regression} &
+\textbf{SVM}
+\\ \hline
+
+1 & 0.9131 & 0.9305 \\ \hline
+
+2 & 0.9326 & 0.9283 \\ \hline
+
+3 & 0.9283 & 0.9413 \\ \hline
+
+4 & 0.9239 & 0.9326 \\ \hline
+
+5 & 0.9239 & 0.9359 \\ \hline
+
+\textbf{Average} & \textbf{0.9244} & \textbf{0.9337} \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+Logistic Regression achieved an average five-fold cross-validation
+accuracy of 92.44\%, while SVM achieved a higher average accuracy of
+93.37\%. SVM performed better than Logistic Regression in four of the
+five folds, except Fold 2. The relatively small variation in the fold
+accuracies indicates consistent performance across the validation
+sets.
+
+% =========================================================
+% 15. CROSS VALIDATION ANALYSIS
+% =========================================================
+
+\section{Cross-Validation Analysis}
+
+\begin{longtable}{|p{6cm}|c|c|}
+\hline
+\textbf{Model} &
+\textbf{Average CV Accuracy} &
+\textbf{Test Accuracy}
+\\ \hline
+
+Logistic Regression &
+0.9244 &
+0.9305
+\\ \hline
+
+SVM &
+0.9337 &
+0.9207
+\\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+SVM obtained the higher average cross-validation accuracy of 93.37\%,
+while Logistic Regression obtained 92.44\%. However, the final test
+accuracy of Logistic Regression was higher at 93.05\%, compared with
+92.07\% for SVM.
+
+This difference shows that cross-validation performance and test-set
+performance do not necessarily produce the same ranking. Based on the
+final test results, Logistic Regression was the better-performing
+model for this experiment.
+
+% =========================================================
+% 16. PERFORMANCE SUMMARY
+% =========================================================
+
+\section{Performance Summary}
+
+\begin{longtable}{|p{5cm}|c|c|c|c|}
+\hline
+\textbf{Model} &
+\textbf{Accuracy} &
+\textbf{Precision} &
+\textbf{Recall} &
+\textbf{F1 Score}
+\\ \hline
+
+Baseline Logistic Regression &
+0.9294 &
+0.9209 &
+0.8981 &
+0.9093
+\\ \hline
+
+Tuned Logistic Regression &
+\textbf{0.9305} &
+\textbf{0.9211} &
+\textbf{0.9008} &
+\textbf{0.9109}
+\\ \hline
+
+Best SVM &
+0.9207 &
+0.9143 &
+0.8815 &
+0.8976
+\\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+Hyperparameter tuning improved the Logistic Regression model slightly
+across all four reported performance metrics. The tuned Logistic
+Regression model achieved the highest test accuracy, precision, recall
+and F1-score among the final models. Therefore, Logistic Regression was
+selected as the best-performing model based on the final test-set
+results.
+
+% =========================================================
+% 17. TRAINING AND TUNING TIME
+% =========================================================
+
+\section{Training and Tuning Time Analysis}
+
+\begin{longtable}{|p{6cm}|c|}
+\hline
+\textbf{Operation} & \textbf{Time (seconds)} \\ \hline
+
+Baseline Logistic Regression Training & 0.1428 \\ \hline
+
+Logistic Regression Hyperparameter Tuning & 289.1025 \\ \hline
+
+Linear SVM Training & 0.5773 \\ \hline
+
+Polynomial SVM Training & 0.5557 \\ \hline
+
+RBF SVM Training & 0.2895 \\ \hline
+
+Sigmoid SVM Training & 0.3540 \\ \hline
+
+SVM Hyperparameter Tuning & 120.9516 \\ \hline
+
+\end{longtable}
+
+\textbf{Observation:}
+
+The baseline Logistic Regression model required only 0.1428 seconds
+for training. Hyperparameter tuning required considerably more time
+because multiple parameter combinations were evaluated using
+cross-validation. Logistic Regression tuning required approximately
+289.10 seconds, while SVM tuning required approximately 120.95
+seconds. Among the SVM kernels, the RBF kernel had the lowest training
+time at approximately 0.2895 seconds.
+
+% =========================================================
+% 18. DISCUSSION
+% =========================================================
+
+\section{Discussion}
+
+The experiment compared a linear probabilistic classifier,
+Logistic Regression, with a margin-based classifier, SVM.
+
+The baseline Logistic Regression model already produced strong
+performance with an accuracy of 92.94\%. After hyperparameter tuning,
+its accuracy increased to 93.05\%. The improvement was small but was
+also observed in precision, recall and F1-score.
+
+Among the SVM kernels, the linear kernel achieved the highest accuracy
+of 92.94\% before tuning. The RBF kernel achieved a comparable
+accuracy of 92.73\% while requiring less training time. The polynomial
+kernel produced high precision but considerably lower recall, which
+resulted in a lower F1-score.
+
+The tuned SVM used the RBF kernel with $C=10$ and gamma set to scale.
+Its cross-validation accuracy was 93.32\%, but its final test accuracy
+was 92.07\%.
+
+The five-fold cross-validation results showed that SVM achieved a
+higher average validation accuracy of 93.37\% compared with 92.44\%
+for Logistic Regression. However, Logistic Regression achieved the
+higher final test accuracy.
+
+Therefore, based on the final test-set metrics, tuned Logistic
+Regression was selected as the best-performing model.
+
+% =========================================================
+% 19. STRENGTHS AND LIMITATIONS
+% =========================================================
+
+\section{Strengths and Limitations}
+
+\subsection{Logistic Regression}
+
+\textbf{Strengths:}
+
+\begin{itemize}
+    \item Simple and computationally efficient.
+    \item Easy to interpret.
+    \item Performs well for linearly separable classification problems.
+    \item Regularization helps control model complexity.
+\end{itemize}
+
+\textbf{Limitations:}
+
+\begin{itemize}
+    \item Primarily provides a linear decision boundary.
+    \item Performance may decrease when complex non-linear relationships
+    exist between features.
+\end{itemize}
+
+\subsection{SVM}
+
+\textbf{Strengths:}
+
+\begin{itemize}
+    \item Effective for binary classification.
+    \item Can model non-linear relationships through kernels.
+    \item Maximizes the margin between classes.
+\end{itemize}
+
+\textbf{Limitations:}
+
+\begin{itemize}
+    \item Hyperparameter tuning can be computationally expensive.
+    \item Kernel selection affects performance significantly.
+    \item The resulting model is less directly interpretable than
+    Logistic Regression.
+\end{itemize}
+
+% =================================================
+% SVM KERNEL-WISE ACCURACY
+% =================================================
+
+\subsection{SVM Kernel-wise Accuracy}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{04_svm_kernel_accuracy.png}
+    \caption{Accuracy comparison of different SVM kernels}
+    \label{fig:svm_kernel_accuracy}
+\end{figure}
+
+\textbf{Observation:}
+
+The linear kernel achieved the highest accuracy of 92.94\%,
+followed closely by the RBF kernel with an accuracy of 92.73\%.
+The sigmoid kernel achieved an accuracy of 88.49\%, while the
+polynomial kernel produced the lowest accuracy of 77.96\%.
+Therefore, the linear kernel provided the best classification
+accuracy among the four SVM kernels evaluated.
+
+
+% =================================================
+% SVM KERNEL-WISE F1 SCORE
+% =================================================
+
+\subsection{SVM Kernel-wise F1 Score}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{05_svm_kernel_f1.png}
+    \caption{F1-score comparison of different SVM kernels}
+    \label{fig:svm_kernel_f1}
+\end{figure}
+
+\textbf{Observation:}
+
+The linear kernel achieved the highest F1-score of 0.9093,
+followed closely by the RBF kernel with an F1-score of 0.9055.
+The sigmoid kernel obtained an F1-score of 0.8528, whereas
+the polynomial kernel obtained the lowest F1-score of 0.6220.
+The low F1-score of the polynomial kernel is mainly associated
+with its low recall value of 0.4601.
+
+% =================================================
+% LOGISTIC REGRESSION VS SVM
+% =================================================
+
+\subsection{Logistic Regression versus SVM}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{06_model_comparison.png}
+    \caption{Performance comparison of Logistic Regression and SVM}
+    \label{fig:logistic_vs_svm}
+\end{figure}
+
+\textbf{Observation:}
+
+The tuned Logistic Regression model achieved an accuracy of
+93.05\%, whereas the best SVM model achieved an accuracy of
+92.07\%. Logistic Regression also obtained higher recall and
+F1-score than SVM. The precision values of both models were
+relatively close. Based on the final test-set results, Logistic
+Regression provided better overall performance than SVM.
+
+% =================================================
+% FIVE-FOLD CROSS-VALIDATION
+% =================================================
+
+\subsection{Five-Fold Cross-Validation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.80\linewidth]{07_cross_validation.png}
+    \caption{Five-fold cross-validation accuracy comparison}
+    \label{fig:five_fold_cv}
+\end{figure}
+
+\textbf{Observation:}
+
+The five-fold cross-validation results show that SVM achieved
+a higher average accuracy of 93.37\% compared with 92.44\%
+for Logistic Regression. SVM obtained its highest accuracy
+of 94.13\% in Fold 3, while Logistic Regression obtained its
+highest accuracy of 93.26\% in Fold 2. Overall, SVM showed
+slightly better average validation performance across the
+five folds.
+
+% =========================================================
+% 20. FINAL OBSERVATION
+% =========================================================
+
+\section{Final Observation}
+
+The experiment demonstrated the application of Logistic Regression and
+Support Vector Machine for binary spam and ham classification.
+
+The tuned Logistic Regression model achieved a test accuracy of
+\textbf{93.05\%}, precision of \textbf{92.11\%}, recall of
+\textbf{90.08\%}, and F1-score of \textbf{91.09\%}. Its best
+hyperparameters were $C=1$, L2 regularization and the saga solver.
+
+The best SVM configuration used an RBF kernel with $C=10$ and gamma
+set to scale. It achieved a test accuracy of \textbf{92.07\%},
+precision of \textbf{91.43\%}, recall of \textbf{88.15\%}, and
+F1-score of \textbf{89.76\%}.
+
+Five-fold cross-validation resulted in average accuracies of
+\textbf{92.44\%} for Logistic Regression and \textbf{93.37\%} for
+SVM. Although SVM obtained a higher average cross-validation accuracy,
+Logistic Regression achieved better performance on the final test set.
+
+Hence, based on the final test-set performance, \textbf{tuned Logistic
+Regression was selected as the best-performing classifier for this
+experiment}.
+
+% =========================================================
+% 21. CONCLUSION
+% =========================================================
+
+\section{Conclusion}
+
+Binary classification was successfully performed using Logistic
+Regression and Support Vector Machine on the Spambase dataset.
+
+Different SVM kernels were evaluated and hyperparameter tuning was
+performed for both models. Hyperparameter tuning improved the
+performance of Logistic Regression slightly. SVM showed strong
+cross-validation performance, particularly with the RBF kernel.
+
+The final comparison showed that tuned Logistic Regression achieved
+the highest test accuracy of 93.05\% and the highest F1-score of
+91.09\%. Therefore, Logistic Regression provided the best final
+test-set performance in this experiment.
+
+The experiment also demonstrated the importance of hyperparameter
+selection, kernel selection and cross-validation when evaluating
+machine learning classification models.
+
+% =========================================================
+% 22. LEARNING OUTCOMES
+% =========================================================
+
+\section{Learning Outcomes}
+
+After completing this experiment, the following concepts were
+understood:
+
+\begin{itemize}
+    \item Binary classification using Logistic Regression.
+    \item Margin-based classification using SVM.
+    \item Effect of L1 and L2 regularization.
+    \item Effect of the $C$ hyperparameter.
+    \item Behaviour of different SVM kernels.
+    \item Hyperparameter tuning using cross-validation.
+    \item Evaluation using accuracy, precision, recall and F1-score.
+    \item Five-fold cross-validation.
+    \item Comparison of validation performance and test performance.
+\end{itemize}
+
+% =========================================================
+% 23. REFERENCES
+% =========================================================
+
+\section{References}
+
+\begin{enumerate}
+    \item Scikit-learn Documentation, Logistic Regression.
+    
+    \item Scikit-learn Documentation, Support Vector Machines.
+    
+    \item Scikit-learn Documentation, Hyperparameter Optimization.
+    
+    \item Spambase Dataset, UCI Machine Learning Repository.
+    
+    \item Spambase Dataset, Kaggle.
+    
+    \item ICS1512 Machine Learning Algorithms Laboratory,
+    Experiment 4 Manual.
+\end{enumerate}
+
+\end{document}
