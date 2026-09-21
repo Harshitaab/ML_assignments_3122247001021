@@ -1,0 +1,344 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{caption}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ICS1512}
+\rhead{Machine Learning Algorithms Laboratory}
+\cfoot{\thepage}
+\lstset{
+language=Python,
+basicstyle=\ttfamily\small,
+numbers=left,
+frame=single,
+breaklines=true,
+showstringspaces=false
+}
+
+\newcommand{\fig}[3]{
+\begin{figure}[H]
+\centering
+\includegraphics[width=#1\linewidth]{#2}
+\caption{#3}
+\end{figure}
+}
+
+\begin{document}
+
+\begin{tabular}{|p{4cm}|p{11cm}|}
+\hline
+Experiment No. & 6 \\ \hline
+Experiment Title & Bagging, Boosting, and Stacked Ensemble Models \\ \hline
+Student Name & Harshitaa B\\ \hline
+Register Number & 3122247001021\\ \hline
+Faculty & Dr. Poreddy Ajay Kumar Reddy \\ \hline
+Submission Date & 16th August 2026\\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+\noindent\textbf{Institution:} Sri Sivasubramaniya Nadar College of Engineering, Chennai\\
+\textbf{Degree and Branch:} B.E. Computer Science and Engineering\\
+\textbf{Semester:} VI\\
+\textbf{Subject:} ICS1512 -- Machine Learning Laboratory\\
+\textbf{Academic Year:} 2026--2027 (Even)\\
+\textbf{Batch:} 2024--2029\\
+\textbf{Dataset:} Wisconsin Diagnostic Breast Cancer Dataset
+
+\section{Objective}
+The objectives of this experiment are:
+\begin{itemize}
+\item To understand ensemble learning strategies: Bagging, Boosting, and Stacking.
+\item To implement Bagging and Boosting classifiers.
+\item To construct a Stacked Ensemble using heterogeneous base learners.
+\item To select hyperparameters using 5-fold cross-validation.
+\item To compare ensemble models using accuracy, precision, recall, F1-score, ROC-AUC, confusion matrices, and ROC/precision-recall curves.
+\item To analyze the effect of ensemble methods on bias, variance, stability, and generalization.
+\end{itemize}
+
+\section{Problem Statement}
+The task is to classify observations from the Wisconsin Diagnostic Breast Cancer dataset into malignant and benign classes using ensemble learning methods. The experiment implements a Decision Tree-based Bagging classifier, AdaBoost, Gradient Boosting, and a heterogeneous Stacked Ensemble consisting of SVM, Naive Bayes, and Decision Tree base learners with Logistic Regression as the meta-learner. An 80--20 stratified train-test split is used, and 5-fold stratified cross-validation is used for hyperparameter selection.
+
+\section{Dataset Description}
+\begin{longtable}{|p{6cm}|p{8cm}|}
+\hline
+Dataset Name & Wisconsin Diagnostic Breast Cancer (WDBC) Dataset \\ \hline
+Dataset Source & UCI Machine Learning Repository / scikit-learn dataset copy \\ \hline
+Number of Samples & 569 \\ \hline
+Number of Features & 30 numerical attributes \\ \hline
+Number of Classes & 2: Malignant and Benign \\ \hline
+Missing Values & None in the supplied dataset \\ \hline
+Train-Test Split & 80\% training, 20\% testing; stratified \\ \hline
+\end{longtable}
+
+\section{Exploratory Data Analysis}
+
+\subsection{Dataset Overview}
+The dataset contains 569 observations and 30 numerical predictors describing characteristics of cell nuclei. The target represents two diagnostic categories. The experiment preserves the target distribution using stratified sampling.
+
+\subsection{Statistical Summary}
+The notebook generates descriptive statistics including count, mean, standard deviation, minimum, quartiles, and maximum for all numerical features. This helps identify scale differences and the range of the measured attributes.
+
+\subsection{Missing Value Analysis}
+The notebook checks every feature for missing observations. No missing values are expected in the scikit-learn representation of this dataset, so imputation is not required.
+
+\subsection{Class Distribution}
+\fig{0.70}{figs/class_distribution.png}{Class distribution of the Wisconsin Diagnostic Breast Cancer dataset.}
+
+\textbf{Inference:} The target contains malignant and benign observations with unequal class frequencies. Stratification is therefore used during the train-test split and cross-validation. Accuracy is reported together with precision, recall, and F1-score so that performance is not interpreted using accuracy alone.
+
+\subsection{Correlation Matrix}
+\fig{0.90}{figs/correlation_matrix.png}{Correlation matrix of the 30 numerical features.}
+
+\textbf{Inference:} Several features show strong positive or negative correlations, indicating redundancy among some measurements. Such relationships are expected because multiple variables describe related physical properties of cell nuclei. The correlation structure motivates the use of multiple features and ensemble methods.
+
+\subsection{Feature Distribution}
+\fig{0.90}{figs/feature_distribution.png}{Distributions of selected features for malignant and benign classes.}
+
+\textbf{Inference:} The selected variables show differences between the two classes, indicating predictive information. At the same time, distributions overlap for several variables. Combining multiple predictors is therefore more appropriate than relying on one feature.
+
+\section{Data Preprocessing}
+The following preprocessing steps are used:
+\begin{itemize}
+\item \textbf{Missing values:} The dataset contains no missing values, so no imputation is necessary.
+\item \textbf{Encoding:} The binary target is represented numerically as malignant and benign classes.
+\item \textbf{Feature scaling:} StandardScaler is applied inside the SVM pipeline because SVM performance depends on feature scale. Tree-based methods do not require scaling.
+\item \textbf{Train-test split:} An 80--20 stratified split is used with a fixed random seed.
+\item \textbf{Feature engineering:} No additional features are manually constructed; the original 30 numerical attributes are used.
+\end{itemize}
+
+\section{Machine Learning Algorithms}
+
+\subsection{Bagging}
+Bagging (Bootstrap Aggregation) trains multiple base estimators on bootstrap samples of the training data and aggregates their predictions. For classification, majority voting or averaged class probabilities can be used.
+
+The expected ensemble prediction can be represented as
+\[
+\hat{f}_{bag}(x)=\frac{1}{B}\sum_{b=1}^{B}\hat{f}_b(x)
+\]
+for an averaged prediction formulation. By averaging models that have different sampling-induced errors, Bagging primarily reduces variance.
+
+\textbf{Advantages:}
+\begin{itemize}
+\item Reduces variance and sensitivity to individual training samples.
+\item Supports parallel training of base estimators.
+\item Works particularly well with high-variance learners such as decision trees.
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+\item It can increase computational cost.
+\item It may provide limited bias reduction compared with sequential boosting.
+\end{itemize}
+
+\subsection{Boosting}
+Boosting constructs an ensemble sequentially. Each new learner is influenced by the errors or residuals of previous learners.
+
+For a simplified additive model,
+\[
+F_m(x)=F_{m-1}(x)+\eta h_m(x),
+\]
+where $\eta$ is the learning rate and $h_m$ is the newly added weak learner.
+
+AdaBoost changes the emphasis placed on training observations according to previous classification errors. Gradient Boosting fits subsequent learners to residual errors using gradient-based optimization.
+
+\textbf{Advantages:}
+\begin{itemize}
+\item Can reduce bias and produce strong predictive models from weak learners.
+\item Captures nonlinear relationships.
+\item Supports flexible learning-rate and tree-complexity control.
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+\item Sequential training is less parallelizable.
+\item Excessive complexity can lead to overfitting.
+\item Performance can be sensitive to learning rate and number of estimators.
+\end{itemize}
+
+\subsection{Stacked Ensemble}
+Stacking combines heterogeneous base learners and feeds their predictions to a meta-learner. In this experiment, SVM, Gaussian Naive Bayes, and Decision Tree form the base layer, while Logistic Regression is used as the final estimator.
+
+The meta-model can be expressed conceptually as
+\[
+\hat{y}=g\left(h_1(x),h_2(x),\ldots,h_K(x)\right),
+\]
+where $h_i$ are base learners and $g$ is the meta-learner.
+
+\textbf{Advantages:}
+\begin{itemize}
+\item Combines complementary modelling assumptions.
+\item Can learn how much to rely on different base learners.
+\item May improve generalization when base models make complementary errors.
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+\item More complex to train and interpret.
+\item Requires careful cross-validation to avoid prediction leakage.
+\item Performance depends on the diversity and quality of the base learners.
+\end{itemize}
+
+\section{Experimental Setup}
+\begin{tabular}{ll}
+\toprule
+Python Version & Recorded by notebook at runtime \\
+Scikit-Learn Version & Recorded by notebook at runtime \\
+IDE & Jupyter Notebook / JupyterLab \\
+Operating System & Recorded by notebook at runtime \\
+Hardware & Recorded by notebook at runtime \\
+Random State & 42 \\
+Cross-Validation & Stratified 5-Fold \\
+Test Size & 20\% \\
+\bottomrule
+\end{tabular}
+
+\section{Hyperparameter Selection}
+
+\subsection{Bagging}
+The Bagging search explores:
+\begin{itemize}
+\item Number of estimators: 3, 10, 25, 50
+\item Maximum samples: 0.6, 0.8, 1.0
+\item Maximum features: 0.7, 1.0
+\end{itemize}
+
+\subsection{AdaBoost}
+The AdaBoost search explores:
+\begin{itemize}
+\item Number of estimators: 25, 50, 100, 200
+\item Learning rate: 0.01, 0.1, 0.5, 1.0
+\end{itemize}
+
+\subsection{Gradient Boosting}
+The Gradient Boosting search explores:
+\begin{itemize}
+\item Number of estimators: 50, 100, 150
+\item Learning rate: 0.03, 0.1, 0.2
+\item Maximum depth: 1, 2, 3
+\end{itemize}
+
+The selection criterion is mean cross-validated F1-score, while mean cross-validated accuracy is also recorded.
+
+```latex
+\section{Results}
+
+The final performance of the implemented ensemble learning models is compared using Accuracy, Precision, Recall, F1 Score, and ROC-AUC.
+
+\begin{table}[H]
+\centering
+\caption{Final Performance Comparison}
+\label{tab:final_performance}
+\begin{tabular}{lccccc}
+\toprule
+Model & Accuracy & Precision & Recall & F1 Score & ROC-AUC \\
+\midrule
+Decision Tree & 0.9123 & 0.9559 & 0.9028 & 0.9286 & 0.9157 \\
+Bagging & 0.9561 & 0.9589 & 0.9722 & 0.9655 & 0.9927 \\
+AdaBoost & 0.9561 & 0.9467 & 0.9861 & 0.9660 & 0.9818 \\
+Gradient Boosting & 0.9649 & 0.9595 & 0.9861 & 0.9726 & 0.9947 \\
+Stacked Ensemble & 0.9737 & 0.9726 & 0.9861 & 0.9793 & 0.9937 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+
+\textit{Note:} The numerical entries should be copied from the final output of the supplied notebook after execution. This prevents unsupported or fabricated experimental values.
+
+\section{Result Visualization}
+
+\subsection{Confusion Matrices}
+The notebook generates a separate confusion matrix for each final ensemble model.
+
+\fig{0.65}{figs/bagging_confusion_matrix.png}{Confusion matrix for Bagging.}
+\textbf{Inference:} The matrix shows the number of correctly and incorrectly classified malignant and benign observations. False negatives and false positives can be inspected directly, complementing aggregate metrics.
+
+\fig{0.65}{figs/adaboost_confusion_matrix.png}{Confusion matrix for AdaBoost.}
+\textbf{Inference:} The AdaBoost matrix provides class-wise information about classification errors. It should be interpreted together with recall and precision rather than accuracy alone.
+
+\fig{0.65}{figs/gradient_boosting_confusion_matrix.png}{Confusion matrix for Gradient Boosting.}
+\textbf{Inference:} The matrix shows whether the model's errors are concentrated in one class. This provides a useful diagnostic of class-specific behaviour.
+
+\fig{0.65}{figs/stacked_ensemble_confusion_matrix.png}{Confusion matrix for the Stacked Ensemble.}
+\textbf{Inference:} The stacked model's matrix indicates its class-wise prediction behaviour on the held-out test set. Its results can be compared directly with the other ensemble models using the same test observations.
+
+\subsection{ROC Curve}
+\fig{0.85}{figs/roc_curves.png}{ROC curves and AUC values for the ensemble models.}
+
+\textbf{Inference:} The ROC curve describes the relationship between true-positive and false-positive rates over classification thresholds. The AUC summarizes discrimination across these thresholds. Higher observed AUC indicates better separation of the two classes on this test set, but it should be considered alongside the other metrics.
+
+\subsection{Precision-Recall Curve}
+\fig{0.85}{figs/precision_recall_curves.png}{Precision-recall curves for the ensemble models.}
+
+\textbf{Inference:} Precision-recall curves emphasize the trade-off between precision and recall across thresholds. They provide complementary information to ROC curves, particularly when class distributions are not perfectly balanced.
+
+\subsection{Feature Importance}
+\fig{0.85}{figs/feature_importance.png}{Top 15 feature importances from the selected Gradient Boosting model.}
+
+\textbf{Inference:} Feature importance identifies variables that contribute strongly to the Gradient Boosting model's decisions. It is a model-specific importance measure and should not be interpreted as a causal effect of a medical variable.
+
+\section{Discussion}
+
+\subsection{Effect on Bias and Variance}
+Bagging primarily targets variance by averaging predictions from multiple bootstrap-trained estimators. Boosting adds learners sequentially to correct errors and can therefore reduce bias, while requiring careful control of learning rate and model complexity. Stacking attempts to exploit complementary strengths of heterogeneous learners through a meta-model.
+
+\subsection{Stability and Generalization}
+Five-fold cross-validation provides multiple training/validation views of the training data and allows the stability of model performance to be assessed using the mean and standard deviation of the scores. The final 20\% test set is kept separate from hyperparameter selection to provide a held-out generalization estimate.
+
+\subsection{Strengths}
+\begin{itemize}
+\item Multiple ensemble strategies are compared under a common experimental protocol.
+\item Hyperparameters are selected using stratified 5-fold cross-validation.
+\item Several complementary evaluation metrics and graphical diagnostics are used.
+\item The stacking ensemble uses heterogeneous base learners.
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+\item The final test estimate comes from one 20\% split.
+\item Hyperparameter grids are finite and do not cover every possible configuration.
+\item Feature importance from a tree ensemble does not establish causality.
+\item Performance on this dataset does not by itself establish clinical suitability.
+\end{itemize}
+
+\section{Observation Questions}
+
+\subsection*{1. How does Bagging reduce variance?}
+Bagging trains multiple models using bootstrap samples and aggregates their predictions. Since individual decision trees can be sensitive to small changes in training data, averaging across multiple trees reduces the effect of individual sampling fluctuations.
+
+\subsection*{2. How does Boosting address model bias?}
+Boosting constructs models sequentially, with later learners concentrating on observations that previous learners predicted poorly. This progressive error correction can reduce systematic error and increase model flexibility.
+
+\subsection*{3. Why does stacking benefit from heterogeneous models?}
+Different algorithms represent data relationships differently and therefore can make different errors. A meta-learner can use the predictions of SVM, Naive Bayes, and Decision Tree models to learn a combined prediction strategy.
+
+\subsection*{4. Which ensemble method performed best and why?}
+The observed answer should be determined from the numerical test-set and cross-validation results generated by the notebook. The comparison should consider accuracy, precision, recall, F1-score, ROC-AUC, and the confusion matrices rather than selecting a model using a single metric.
+
+\section{Conclusion}
+Bagging, AdaBoost, Gradient Boosting, and a heterogeneous Stacked Ensemble were implemented on the Wisconsin Diagnostic Breast Cancer dataset. The experiment demonstrates three different approaches to ensemble learning: variance reduction through bootstrap aggregation, sequential error correction through boosting, and heterogeneous prediction combination through stacking. Five-fold cross-validation was used for model selection, while an independent 20\% test set was used for final evaluation. The final experimental conclusion should be based on the numerical results produced by the notebook.
+
+\section{References}
+\begin{enumerate}[label={[}\arabic*{]}]
+\item F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \textit{Journal of Machine Learning Research}, vol. 12, pp. 2825--2830, 2011.
+\item Scikit-learn, ``Ensemble methods,'' \url{https://scikit-learn.org/stable/modules/ensemble.html}.
+\item Scikit-learn, ``BaggingClassifier,'' \url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html}.
+\item Scikit-learn, ``AdaBoostClassifier,'' \url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html}.
+\item Scikit-learn, ``GradientBoostingClassifier,'' \url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html}.
+\item Scikit-learn, ``StackingClassifier,'' \url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.StackingClassifier.html}.
+\item UCI Machine Learning Repository, ``Breast Cancer Wisconsin (Diagnostic) Dataset,'' \url{https://archive.ics.uci.edu/}.
+\end{enumerate}
+
+\end{document}
