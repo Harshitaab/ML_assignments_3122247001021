@@ -1,4 +1,4 @@
-# Experiment 6: Dimensionality Reduction and Model Evaluation Using PCA
+# Experiment 7: Dimensionality Reduction and Model Evaluation Using PCA
 
 **Institution:** Sri Sivasubramaniya Nadar College of Engineering (Assuming based on previous format)
 **Course:** Machine Learning Algorithms Laboratory (ICS1512)  
